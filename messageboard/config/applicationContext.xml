@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	<!--  
+		   1 id ：bean的唯一标识，可以是任意单词，
+				不能是中文，不能有空格,最好能表达出意义,
+				如果不写id属性，则默认的是类名，建议写上id(吐血建议)
+		   2 class：关联要交给IOC容器管理的类的全路径名称
+		   3 spring管理的对象默认的都是单例
+		   4  属性注入通过property标签来注入，需要有set方法
+		   5 构造器注入
+		   	1>必须有(默认)构造器
+		   	2>通过constructor-arg标签来注入
+		   	3>可以通过index来指定对应的参数
+		   	4>还可以通过type来指定参数，但是不建议使用
+		   6 bean里面如果需要注入其他的bean，则通过ref属性来关联
+		   7 如果在xml中有特殊字符&,<则需要用标签<![CDATA[]]>包裹起来,
+		         还可以通过实体来配置，&amp;&gt;&lt;记不住就去百度
+		         
+		   8 通过p命名空间
+		     1 添加xmlns:p="http://www.springframework.org/schema/p"
+		     2 注入普通的简单类型 p:name="" 注入对象类型 p:name-ref="bean"
+		     
+		  9自动装配autowire
+				byName：通过名称自动装配
+				byType:通过类型自动匹配
+				==如果能用byType 建议使用（吐血推荐）
+				
+		  10 注入外部文件 
+			1 导入配置文件
+				<context:property-placeholder location="classpath:db.properties"/>
+			2 将文件内容注入到dataSource
+			${db.username}......
+			
+			11注解
+			扫描所有你需要的包  
+	 		   <context:component-scan base-package="com.jereh.model"></context:component-scan>
+			   @Component 将实体注册成组件
+			 * @Autowired 自动装配默认是byType,如果想要byName需要通过注解Qualifier来辅助
+			 * 这种情况下建议使用@Resource(name="")
+				
+	-->
+
+	<bean id="usercon" class="com.jereh.model.User">
+		<constructor-arg value="123" index="1"></constructor-arg>
+		<constructor-arg value="李四" index="0"></constructor-arg>
+	</bean>
+	
+	<bean id="dog" class="com.jereh.model.Dog">
+		<property name="dogName" >
+			<value><![CDATA[tom&jerry]]></value>
+		</property>
+		<property name="dogAge"  value="2"></property>
+	</bean>
+
+	<bean  id="user" class="com.jereh.model.User">
+		<property name="userName" value="张&amp;三"></property>
+		<property name="age"  value="33"></property>
+		<property name="dog" ref="dog"></property>
+		
+		<!-- 注入列表 -->
+		<property name="fridents">
+				<list>
+					<value>zhangsan</value>
+					<value>lisi</value>
+					<value>wangwu</value>
+					<value>zhaoliu</value>
+					<value>zhouqi</value>
+				</list>
+		</property>
+		<!-- 注入map -->
+		<property name="fridentsMap">
+				<map>
+					<entry key="zhangsan" value="大头"> </entry>
+					<entry key="lisi" value="小头"></entry>
+					<entry key="wangwu" value="铁锤"></entry>
+					<entry key="zhaoliu" value="王较瘦"></entry>
+					<entry key="zhouqi" value="小虎"></entry>
+				</map>
+		</property>
+	</bean>
+	
+	<!-- p命名空间 -->
+	<bean id="toy" class="com.jereh.model.Toy" p:toyName="小黄人" p:num="30"></bean>
+	
+	<bean id="dog3" class="com.jereh.model.Dog" autowire="byType">
+	
+	</bean>
+	
+	<!-- 数据源管理-->
+	<context:property-placeholder location="classpath:db.properties"/>
+	<bean id="dataSource" class="com.jereh.model.DataSource" 
+	 p:userName="${db.username}" p:passWord="${db.password}" 
+	p:driver="${db.driver}" p:url="${db.url}">
+	
+	</bean>
+
+</beans>
